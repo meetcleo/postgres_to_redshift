@@ -7,7 +7,7 @@ module PostgresToRedshift
     end
 
     def run
-      puts "Importing #{table.target_table_name} at #{Time.now.utc}"
+      puts "#{Time.now.utc} - Importing #{table.target_table_name}"
 
       target_connection.exec("CREATE TABLE IF NOT EXISTS #{table_name} (#{table.columns_for_create});")
 

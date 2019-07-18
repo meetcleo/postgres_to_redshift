@@ -62,7 +62,7 @@ module PostgresToRedshift
       chunk = 1
       bucket.objects.with_prefix("export/#{table.target_table_name}.psv.gz").delete_all
       begin
-        puts "Downloading #{table} changes between #{incremental_from} and #{incremental_to} at #{Time.now.utc}"
+        puts "#{Time.now.utc} - Downloading #{table} changes between #{incremental_from} and #{incremental_to}"
         copy_command = "COPY (#{select_sql}) TO STDOUT WITH DELIMITER '|'"
 
         source_connection.copy_data(copy_command) do
@@ -83,8 +83,9 @@ module PostgresToRedshift
     end
 
     def upload_table(buffer, chunk)
-      puts "Uploading #{table.target_table_name}.#{chunk}"
+      puts "#{Time.now.utc} - Uploading #{table.target_table_name}.#{chunk}"
       bucket.objects["export/#{table.target_table_name}.psv.gz.#{chunk}"].write(buffer)
+      puts "#{Time.now.utc} - Uploading #{table.target_table_name}.#{chunk} complete."
     end
 
     def import_table

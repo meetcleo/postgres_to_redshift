@@ -7,7 +7,7 @@ module PostgresToRedshift
     end
 
     def run
-      puts "Importing #{table.target_table_name} at #{Time.now.utc}"
+      puts "#{Time.now.utc} - Importing #{table.target_table_name}"
 
       # TRUNCATE cannot be rolled back
       target_connection.exec("DROP TABLE IF EXISTS #{table_name};")
