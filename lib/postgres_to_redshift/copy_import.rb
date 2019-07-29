@@ -53,12 +53,12 @@ module PostgresToRedshift
     def finish_chunk(tmpfile:, zip:, chunk:)
       zip.finish
       tmpfile.rewind
-      upload_table(tmpfile, chunk)
-      close_resources(zip: zip)
+      upload_table(tmpfile: tmpfile, zip: zip, chunk: chunk)
     end
 
     def copy_table
       tmpfile, zip = start_chunk
+      upload_thread = Thread.new {}
       chunk = 1
       bucket.objects.with_prefix("export/#{table.target_table_name}.psv.gz").delete_all
       begin
@@ -70,22 +70,27 @@ module PostgresToRedshift
             zip.write(row)
             next unless zip.pos > CHUNK_SIZE
 
-            finish_chunk(tmpfile: tmpfile, zip: zip, chunk: chunk)
+            upload_thread.join
+            upload_thread = finish_chunk(tmpfile: tmpfile, zip: zip, chunk: chunk)
             chunk += 1
             tmpfile, zip = start_chunk
           end
         end
-        finish_chunk(tmpfile: tmpfile, zip: zip, chunk: chunk)
+        upload_thread.join
+        finish_chunk(tmpfile: tmpfile, zip: zip, chunk: chunk).join
         source_connection.reset
       ensure
         close_resources(zip: zip)
       end
     end
 
-    def upload_table(buffer, chunk)
-      puts "#{Time.now.utc} - Uploading #{table.target_table_name}.#{chunk}"
-      bucket.objects["export/#{table.target_table_name}.psv.gz.#{chunk}"].write(buffer)
-      puts "#{Time.now.utc} - Uploading #{table.target_table_name}.#{chunk} complete."
+    def upload_table(tmpfile:, zip:, chunk:)
+      Thread.new do
+        puts "#{Time.now.utc} - Uploading #{table.target_table_name}.#{chunk}"
+        bucket.objects["export/#{table.target_table_name}.psv.gz.#{chunk}"].write(tmpfile)
+        puts "#{Time.now.utc} - Uploading #{table.target_table_name}.#{chunk} complete."
+        close_resources(zip: zip)
+      end
     end
 
     def import_table
