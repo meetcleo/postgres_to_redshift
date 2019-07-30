@@ -68,7 +68,7 @@ module PostgresToRedshift
       begin
         yield
       rescue StandardError => e
-        puts "Import failed with #{retries_remaining} retries remaining due to: #{e.message}"
+        puts "#{Time.now.utc} - Import failed with #{retries_remaining} retries remaining due to: #{e.message}"
         disconnect
         raise unless retries_remaining.positive?
 
@@ -80,7 +80,7 @@ module PostgresToRedshift
 
     def with_tracking
       start_time = Time.now.utc
-      puts "Import started at #{start_time}"
+      puts "#{Time.now.utc} - Import started"
       yield start_time
       File.write(PostgresToRedshift::TIMESTAMP_FILE_NAME, start_time.iso8601)
     end
@@ -93,7 +93,7 @@ module PostgresToRedshift
         puts 'Rolled back'
       else
         target_connection.exec('COMMIT;')
-        puts 'Committed'
+        puts "#{Time.now.utc} - Committed"
       end
     end
 
