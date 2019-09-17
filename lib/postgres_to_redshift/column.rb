@@ -32,6 +32,10 @@ module PostgresToRedshift
       attributes['data_type']
     end
 
+    def not_null?
+      attributes['is_nullable'].to_s.downcase == 'no'
+    end
+
     def data_type_for_copy
       CAST_TYPES_FOR_COPY[data_type] || data_type
     end
