@@ -31,6 +31,14 @@ module PostgresToRedshift
           end
         end
       end
+
+      keys.each do |key|
+        with_retry do
+          in_transaction do
+            target_connection.exec(key.to_sql)
+          end
+        end
+      end
     end
 
     private
@@ -51,6 +59,11 @@ module PostgresToRedshift
     def tables
       # do not cache - we want fresh table listing for retries
       Tables.new(source_connection: source_connection, target_connection: target_connection).all
+    end
+
+    def keys
+      # do not cache - we want fresh key listing for retries
+      Keys.new(source_connection: source_connection, tables: Tables.redshift_include_tables).all
     end
 
     def disconnect

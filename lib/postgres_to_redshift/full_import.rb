@@ -10,7 +10,7 @@ module PostgresToRedshift
       puts "#{Time.now.utc} - Importing #{table.target_table_name}"
 
       # TRUNCATE cannot be rolled back
-      target_connection.exec("DROP TABLE IF EXISTS #{table_name};")
+      target_connection.exec("DROP TABLE IF EXISTS #{table_name} CASCADE;")
 
       target_connection.exec("CREATE TABLE #{table_name} (#{table.columns_for_create});")
 
