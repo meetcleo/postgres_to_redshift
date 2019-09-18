@@ -23,7 +23,9 @@ module PostgresToRedshift
 
     def columns_for_create
       columns.map do |column|
-        %("#{column.name}" #{column.data_type_for_copy})
+        sql = %("#{column.name}" #{column.data_type_for_copy})
+        sql += " NOT NULL" if column.not_null?
+        sql
       end.join(', ')
     end
 
