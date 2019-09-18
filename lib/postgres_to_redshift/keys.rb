@@ -39,7 +39,7 @@ module PostgresToRedshift
         sql += "where contype in ('#{Key::FOREIGN_KEY}', '#{Key::PRIMARY_KEY}')\n"
       end
 
-      sql += 'order by conrelid::regclass::text, contype desc;'
+      sql += 'order by contype desc;'
       sql
     end
   end
