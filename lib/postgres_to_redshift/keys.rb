@@ -33,7 +33,7 @@ module PostgresToRedshift
       if tables
         table_names = "'" + tables.join("', '") + "'"
         sql += "and conrelid::regclass::text in (#{table_names})\n"
-        table_names = table_names.gsub(',', '|').delete("'")
+        table_names = tables.join('|')
         sql += "and (contype = '#{Key::PRIMARY_KEY}' or (contype = '#{Key::FOREIGN_KEY}' and pg_get_constraintdef(oid) similar to '%REFERENCES (#{table_names})%'))\n"
       else
         sql += "where contype in ('#{Key::FOREIGN_KEY}', '#{Key::PRIMARY_KEY}')\n"
