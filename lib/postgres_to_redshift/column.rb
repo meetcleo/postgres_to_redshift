@@ -1,12 +1,14 @@
 module PostgresToRedshift
   class Column
+    DEFAULT_PRECISION = 19
+    DEFAULT_SCALE = 2
+
     CAST_TYPES_FOR_COPY = {
       'text' => 'CHARACTER VARYING(65535)',
       'json' => 'CHARACTER VARYING(65535)',
       'jsonb' => 'CHARACTER VARYING(65535)',
       'bytea' => 'CHARACTER VARYING(65535)',
-      'money' => 'DECIMAL(19,2)',
-      'numeric' => 'DECIMAL',
+      'money' => "DECIMAL(#{DEFAULT_PRECISION},#{DEFAULT_SCALE})",
       'oid' => 'CHARACTER VARYING(65535)',
       'ARRAY' => 'CHARACTER VARYING(65535)',
       'USER-DEFINED' => 'CHARACTER VARYING(65535)',
@@ -23,7 +25,14 @@ module PostgresToRedshift
 
     def name_for_copy
       if needs_type_cast?
-        %[CAST("#{name}" AS #{data_type_for_copy}) AS #{name}]
+        case data_type
+        when 'numeric'
+          scale = numeric_scale || DEFAULT_SCALE
+
+          %[ROUND(CAST("#{name}" AS #{data_type_for_copy}), #{scale}) AS #{name}]
+        else
+          %[CAST("#{name}" AS #{data_type_for_copy}) AS #{name}]
+        end
       else
         %("#{name}")
       end
@@ -56,10 +65,11 @@ module PostgresToRedshift
 
     def handle_additional_type_attributes(type)
       case type
-      when 'DECIMAL'
-        return type unless numeric_precision && numeric_scale
+      when 'numeric'
+        precision = numeric_precision || DEFAULT_PRECISION
+        scale = numeric_scale || DEFAULT_SCALE
 
-        "#{type}(#{numeric_precision},#{numeric_scale})"
+        "#{type}(#{precision},#{scale})"
       else
         type
       end
