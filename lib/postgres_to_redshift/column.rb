@@ -27,7 +27,7 @@ module PostgresToRedshift
       if needs_type_cast?
         case data_type
         when 'numeric'
-          precision = (numeric_precision || DEFAULT_PRECISION) + 1 # number of digits + the dot
+          precision = (numeric_precision || DEFAULT_PRECISION).to_i + 1 # number of digits + the dot
           scale = numeric_scale || DEFAULT_SCALE
 
           %[CAST(RIGHT(ROUND("#{name}", #{scale})::text, #{precision}) AS #{data_type_for_copy}) AS #{name}]
