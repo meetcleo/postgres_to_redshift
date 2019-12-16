@@ -1,6 +1,6 @@
 module PostgresToRedshift
   class Column
-    DEFAULT_PRECISION = 19
+    DEFAULT_PRECISION = 19 # 99_999_999_999_999_999.99
     DEFAULT_SCALE = 2
 
     CAST_TYPES_FOR_COPY = {
@@ -27,9 +27,10 @@ module PostgresToRedshift
       if needs_type_cast?
         case data_type
         when 'numeric'
+          precision = (numeric_precision || DEFAULT_PRECISION) + 1 # number of digits + the dot
           scale = numeric_scale || DEFAULT_SCALE
 
-          %[ROUND(CAST("#{name}" AS #{data_type_for_copy}), #{scale}) AS #{name}]
+          %[CAST(RIGHT(ROUND("#{name}", #{scale})::text, #{precision}) AS #{data_type_for_copy}) AS #{name}]
         else
           %[CAST("#{name}" AS #{data_type_for_copy}) AS #{name}]
         end
