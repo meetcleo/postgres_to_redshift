@@ -18,10 +18,11 @@ require 'postgres_to_redshift/version'
 
 module PostgresToRedshift
   TIMESTAMP_FILE_NAME = 'POSTGRES_TO_REDHSIFT_TIMESTAMP'.freeze
+  PIDFILE_NAME = 'postgres_to_redshift.pid'.freeze
   extend self
 
   def update_tables
-    PidFile.new
+    PidFile.new(pidfile: PIDFILE_NAME)
 
     update_tables = UpdateTables.new(bucket: bucket, source_uri: source_uri, target_uri: target_uri, schema: schema)
     incremental? ? update_tables.incremental : update_tables.full
