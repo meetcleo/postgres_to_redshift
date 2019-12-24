@@ -76,8 +76,7 @@ For an _incremental_ import, the entire import process is performed in one datab
 Many of the options specified in the Redshift [docs](https://docs.aws.amazon.com/redshift/latest/dg/t_Creating_tables.html) are implemented.
 
 - By default, PK and FK constraints are applied wherever possible in Redshift automatically.
-- [Key distribution](https://docs.aws.amazon.com/redshift/latest/dg/t_Distributing_data.html) can be specified using the `POSTGRES_TO_REDSHIFT_DISTRIBUTION_KEY` env, which will use the specified column as a distkey for any table containing that column.
-- [Compound sort keys](https://docs.aws.amazon.com/redshift/latest/dg/t_Sorting_data.html) can be specified using the `POSTGRES_TO_REDSHIFT_SORT_KEYS` env (comma separated list), which will use the specified column(s) as the sort keys for any table containing one or more of those columns.
+- [Key distribution](https://docs.aws.amazon.com/redshift/latest/dg/t_Distributing_data.html) and [compound sort keys](https://docs.aws.amazon.com/redshift/latest/dg/t_Sorting_data.html) will be defined if possible, based on the table's primary key. If table structure is meant to be optimised for the table specified in the `POSTGRES_TO_REDSHIFT_OPTIMISED_FOR_TABLE` env, then any tables with a foreign key to the optimised table will be distributed and sorted based on this foreign key column instead.
 
 ## Contributing
 

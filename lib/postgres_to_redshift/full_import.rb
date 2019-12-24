@@ -1,9 +1,10 @@
 module PostgresToRedshift
   class FullImport
-    def initialize(table:, target_connection:, schema:)
+    def initialize(table:, target_connection:, source_connection:, schema:)
       @table = table
       @target_connection = target_connection
       @schema = schema
+      @tuning = Tuning.new(table: table, source_connection: source_connection)
     end
 
     def run
@@ -34,35 +35,14 @@ module PostgresToRedshift
       statement
     end
 
-    def key_is_primary_for_table?(key)
-      table.target_table_name.downcase == key.chomp('_id') + 's'
-    end
-
-    def table_includes_column?(column)
-      table.column_names.map(&:downcase).include?(column)
-    end
-
     def distribution_key
-      distkey = ENV['POSTGRES_TO_REDSHIFT_DISTRIBUTION_KEY']&.downcase&.strip
-      return if distkey.empty?
-
-      distkey = 'id' if key_is_primary_for_table?(distkey)
-      distkey if table_includes_column?(distkey)
+      tuning.distribution_key
     end
 
     def sort_keys
-      sortkeys = ENV['POSTGRES_TO_REDSHIFT_SORT_KEYS']&.split(',')&.map(&:strip)&.map(&:downcase) || []
-      sortkeys.map do |sortkey|
-        if key_is_primary_for_table?(sortkey)
-          'id'
-        else
-          sortkey
-        end
-      end.select do |sortkey|
-        table_includes_column?(sortkey)
-      end
+      tuning.sort_keys
     end
 
-    attr_reader :table, :target_connection, :schema
+    attr_reader :table, :target_connection, :schema, :tuning
   end
 end
