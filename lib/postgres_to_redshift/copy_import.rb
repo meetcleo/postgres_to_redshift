@@ -95,7 +95,7 @@ module PostgresToRedshift
 
     def import_table
       args = { table: table, target_connection: target_connection, schema: schema }
-      import = incremental? ? IncrementalImport.new(**args) : FullImport.new(**args)
+      import = incremental? ? IncrementalImport.new(**args) : FullImport.new(**args.merge(source_connection: source_connection))
       import.run
     end
 

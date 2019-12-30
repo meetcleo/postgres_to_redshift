@@ -13,6 +13,7 @@ require 'postgres_to_redshift/incremental_import'
 require 'postgres_to_redshift/key'
 require 'postgres_to_redshift/keys'
 require 'postgres_to_redshift/tables'
+require 'postgres_to_redshift/tuning'
 require 'postgres_to_redshift/update_tables'
 require 'postgres_to_redshift/version'
 

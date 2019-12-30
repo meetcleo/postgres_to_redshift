@@ -71,6 +71,13 @@ An import will be attempted three times before giving up and raising the excepti
 
 For an _incremental_ import, the entire import process is performed in one database transaction to ensure that the data remains in a consistent state while the import is running as it is assumed that the incremental import will be running during business hours moving a relatively small amount of data. For a _full_ import, each table is imported in its own transaction as it is assumed that the full import is running outside of business hours and would be moving too large a volume of data to be performed in a single transaction.
 
+### Performance tuning
+
+Many of the options specified in the Redshift [docs](https://docs.aws.amazon.com/redshift/latest/dg/t_Creating_tables.html) are implemented.
+
+- By default, PK and FK constraints are applied wherever possible in Redshift automatically.
+- [Key distribution](https://docs.aws.amazon.com/redshift/latest/dg/t_Distributing_data.html) and [compound sort keys](https://docs.aws.amazon.com/redshift/latest/dg/t_Sorting_data.html) will be defined if possible, based on the table's primary key. If table structure is meant to be optimised for the table specified in the `POSTGRES_TO_REDSHIFT_OPTIMISED_FOR_TABLE` env, then any tables with a foreign key to the optimised table will be distributed and sorted based on this foreign key column instead.
+
 ## Contributing
 
 1. Fork it ( https://github.com/kitchensurfing/postgres_to_redshift/fork )
