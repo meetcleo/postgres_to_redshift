@@ -8,17 +8,21 @@ module PostgresToRedshift
     end
 
     def incremental
+      dirty_tables = []
       start_time_of_previous_job = Time.parse(File.read(PostgresToRedshift::TIMESTAMP_FILE_NAME)).utc
       with_tracking do |incremental_to|
         with_retry do
           in_transaction do
             tables.each do |table|
               incremental_from = table.dirty? ? CopyImport::BEGINNING_OF_TIME : start_time_of_previous_job
+              dirty_tables << table if table.dirty?
               CopyImport.new(table: table, bucket: bucket, source_connection: source_connection, target_connection: target_connection, schema: schema, incremental_from: incremental_from, incremental_to: incremental_to).run
             end
           end
         end
       end
+
+      create_keys(dirty_tables)
     end
 
     def full
@@ -32,13 +36,7 @@ module PostgresToRedshift
         end
       end
 
-      keys.each do |key|
-        with_retry do
-          in_transaction do
-            target_connection.exec(key.to_sql)
-          end
-        end
-      end
+      create_keys
     end
 
     private
@@ -59,6 +57,18 @@ module PostgresToRedshift
     def tables
       # do not cache - we want fresh table listing for retries
       Tables.new(source_connection: source_connection, target_connection: target_connection).all
+    end
+
+    def create_keys(for_tables = nil)
+      for_tables ||= tables
+      keys.select { |key| for_tables.any? { |table| key.touches_table?(table.name) } }.each do |key|
+        with_retry do
+          in_transaction do
+            puts "#{Time.now.utc} - Creating #{key.key_name} with:\n#{key.to_sql}"
+            target_connection.exec(key.to_sql)
+          end
+        end
+      end
     end
 
     def keys

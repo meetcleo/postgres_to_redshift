@@ -2,8 +2,8 @@ module PostgresToRedshift
   class Key
     PRIMARY_KEY = 'p'.freeze
     FOREIGN_KEY = 'f'.freeze
-    PRIMARY_KEY_DECOMPOSER = /PRIMARY KEY \((?<source_column_name>\w+)\)/i
-    FOREIGN_KEY_DECOMPOSER = /FOREIGN KEY \((?<source_column_name>\w+)\) REFERENCES (?<target_table_name>\w+)\((?<target_column_name>\w+)\)/i
+    PRIMARY_KEY_DECOMPOSER = /PRIMARY KEY \((?<source_column_name>\w+)\)/i.freeze
+    FOREIGN_KEY_DECOMPOSER = /FOREIGN KEY \((?<source_column_name>\w+)\) REFERENCES (?<target_table_name>\w+)\((?<target_column_name>\w+)\)/i.freeze
 
     def initialize(attributes:)
       @attributes = attributes
@@ -38,6 +38,14 @@ module PostgresToRedshift
       return if primary?
 
       decomposed_key[:target_column_name]
+    end
+
+    def touches_table?(name)
+      [target_table_name, table_name].compact.map(&:downcase).include?(name.downcase)
+    end
+
+    def key_name
+      attributes['name']
     end
 
     private
@@ -75,10 +83,6 @@ module PostgresToRedshift
 
     def table_name
       attributes['table_name']
-    end
-
-    def key_name
-      attributes['name']
     end
   end
 end
