@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    postgres_to_redshift (0.7.0)
+    postgres_to_redshift (0.7.1)
       aws-sdk-v1 (~> 1.54)
       pg (>= 0.18.1)
       pidfile
@@ -24,7 +24,7 @@ GEM
     parallel (1.15.0)
     parser (2.6.2.0)
       ast (~> 2.4.0)
-    pg (1.1.4)
+    pg (1.2.1)
     pidfile (0.3.0)
     pry (0.12.2)
       coderay (~> 1.1.0)

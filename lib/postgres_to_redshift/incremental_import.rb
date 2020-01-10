@@ -18,6 +18,7 @@ module PostgresToRedshift
       target_connection.exec("DELETE FROM #{table_name} USING #{temp_table_name} source WHERE #{table_name}.id = source.id;")
 
       target_connection.exec("INSERT INTO #{table_name} SELECT * FROM #{temp_table_name};")
+      target_connection.exec("DROP TABLE #{temp_table_name};")
     end
 
     private
