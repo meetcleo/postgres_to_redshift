@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    postgres_to_redshift (0.7.2)
+    postgres_to_redshift (0.7.3)
       aws-sdk (~> 2.11)
       pg (>= 0.18.1)
       pidfile
