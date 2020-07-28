@@ -1,4 +1,4 @@
-require 'aws-sdk-v1'
+require 'aws-sdk'
 require 'pg'
 require 'pidfile'
 require 'tempfile'
@@ -52,7 +52,7 @@ module PostgresToRedshift
   end
 
   def s3
-    @s3 ||= AWS::S3.new(access_key_id: ENV.fetch('S3_DATABASE_EXPORT_ID'), secret_access_key: ENV.fetch('S3_DATABASE_EXPORT_KEY'))
+    @s3 ||= Aws::S3.new(access_key_id: ENV.fetch('S3_DATABASE_EXPORT_ID'), secret_access_key: ENV.fetch('S3_DATABASE_EXPORT_KEY'))
   end
 
   def bucket
