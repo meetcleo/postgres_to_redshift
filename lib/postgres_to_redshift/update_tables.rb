@@ -8,21 +8,21 @@ module PostgresToRedshift
     end
 
     def incremental
-      dirty_tables = []
-      start_time_of_previous_job = Time.parse(File.read(PostgresToRedshift::TIMESTAMP_FILE_NAME)).utc
-      with_tracking do |incremental_to|
-        with_retry do
-          in_transaction do
-            tables.each do |table|
-              incremental_from = table.dirty? ? CopyImport::BEGINNING_OF_TIME : start_time_of_previous_job
-              dirty_tables << table if table.dirty?
-              CopyImport.new(table: table, bucket: bucket, source_connection: source_connection, target_connection: target_connection, schema: schema, incremental_from: incremental_from, incremental_to: incremental_to).run
-            end
-          end
-        end
-      end
+      # dirty_tables = []
+      # start_time_of_previous_job = Time.parse(File.read(PostgresToRedshift::TIMESTAMP_FILE_NAME)).utc
+      # with_tracking do |incremental_to|
+      #   with_retry do
+      #     in_transaction do
+      #       tables.each do |table|
+      #         incremental_from = table.dirty? ? CopyImport::BEGINNING_OF_TIME : start_time_of_previous_job
+      #         dirty_tables << table if table.dirty?
+      #         CopyImport.new(table: table, bucket: bucket, source_connection: source_connection, target_connection: target_connection, schema: schema, incremental_from: incremental_from, incremental_to: incremental_to).run
+      #       end
+      #     end
+      #   end
+      # end
 
-      create_keys(dirty_tables)
+      # create_keys(dirty_tables)
     end
 
     def full

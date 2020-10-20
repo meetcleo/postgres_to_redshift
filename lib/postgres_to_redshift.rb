@@ -52,10 +52,10 @@ module PostgresToRedshift
   end
 
   def s3
-    @s3 ||= AWS::S3.new(access_key_id: ENV.fetch('S3_DATABASE_EXPORT_ID'), secret_access_key: ENV.fetch('S3_DATABASE_EXPORT_KEY'))
+    # @s3 ||= AWS::S3.new(access_key_id: ENV.fetch('S3_DATABASE_EXPORT_ID'), secret_access_key: ENV.fetch('S3_DATABASE_EXPORT_KEY'))
   end
 
   def bucket
-    @bucket ||= s3.buckets[ENV.fetch('S3_DATABASE_EXPORT_BUCKET')]
+    # @bucket ||= s3.buckets[ENV.fetch('S3_DATABASE_EXPORT_BUCKET')]
   end
 end

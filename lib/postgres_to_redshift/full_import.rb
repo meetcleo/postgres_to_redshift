@@ -16,7 +16,7 @@ module PostgresToRedshift
       puts "#{Time.now.utc} - Creating #{table.target_table_name} with:\n#{create_table_statement}"
       target_connection.exec("#{create_table_statement};")
 
-      target_connection.exec("COPY #{table_name} FROM 's3://#{ENV['S3_DATABASE_EXPORT_BUCKET']}/export/#{table.target_table_name}.psv.gz' CREDENTIALS 'aws_access_key_id=#{ENV['S3_DATABASE_EXPORT_ID']};aws_secret_access_key=#{ENV['S3_DATABASE_EXPORT_KEY']}' GZIP TRUNCATECOLUMNS ESCAPE DELIMITER as '|';")
+      # target_connection.exec("COPY #{table_name} FROM 's3://#{ENV['S3_DATABASE_EXPORT_BUCKET']}/export/#{table.target_table_name}.psv.gz' CREDENTIALS 'aws_access_key_id=#{ENV['S3_DATABASE_EXPORT_ID']};aws_secret_access_key=#{ENV['S3_DATABASE_EXPORT_KEY']}' GZIP TRUNCATECOLUMNS ESCAPE DELIMITER as '|';")
 
       target_connection.exec("ANALYZE #{table_name};")
     end
@@ -29,6 +29,9 @@ module PostgresToRedshift
 
     def create_table_statement
       statement = "CREATE TABLE #{table_name} (#{table.columns_for_create})"
+      return statement if table_name =~ /credit_score_reason_mappings/
+      return statement if table_name == 'public."taggings"'
+
       statement += " DISTSTYLE KEY DISTKEY (#{distribution_key})" if distribution_key.present?
       statement += " SORTKEY(#{sort_keys.first})" if sort_keys.one?
       statement += " COMPOUND SORTKEY(#{sort_keys.join(',')})" if sort_keys.count > 1

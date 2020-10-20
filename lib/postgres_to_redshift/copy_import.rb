@@ -24,13 +24,13 @@ module PostgresToRedshift
     private
 
     def select_sql
-      select_sql = "SELECT #{table.columns_for_copy} FROM #{table.name}"
-      select_sql += " WHERE #{incremental_column} BETWEEN '#{incremental_from.iso8601}' AND '#{incremental_to.iso8601}'" if incremental_column
-      select_sql
+      # select_sql = "SELECT #{table.columns_for_copy} FROM #{table.name}"
+      # select_sql += " WHERE #{incremental_column} BETWEEN '#{incremental_from.iso8601}' AND '#{incremental_to.iso8601}'" if incremental_column
+      # select_sql
     end
 
     def incremental_column
-      @incremental_column ||= %w[updated_at created_at].detect { |column_name| table.column_names.include?(column_name) }
+      # @incremental_column ||= %w[updated_at created_at].detect { |column_name| table.column_names.include?(column_name) }
     end
 
     def new_tmpfile
@@ -57,40 +57,40 @@ module PostgresToRedshift
     end
 
     def copy_table
-      tmpfile, zip = start_chunk
-      upload_thread = Thread.new {}
-      chunk = 1
-      bucket.objects.with_prefix("export/#{table.target_table_name}.psv.gz").delete_all
-      begin
-        puts "#{Time.now.utc} - Downloading #{table} changes between #{incremental_from} and #{incremental_to}"
-        copy_command = "COPY (#{select_sql}) TO STDOUT WITH DELIMITER '|'"
+      # tmpfile, zip = start_chunk
+      # upload_thread = Thread.new {}
+      # chunk = 1
+      # bucket.objects.with_prefix("export/#{table.target_table_name}.psv.gz").delete_all
+      # begin
+      #   puts "#{Time.now.utc} - Downloading #{table} changes between #{incremental_from} and #{incremental_to}"
+      #   copy_command = "COPY (#{select_sql}) TO STDOUT WITH DELIMITER '|'"
 
-        source_connection.copy_data(copy_command) do
-          while (row = source_connection.get_copy_data)
-            zip.write(row)
-            next unless zip.pos > CHUNK_SIZE
+      #   source_connection.copy_data(copy_command) do
+      #     while (row = source_connection.get_copy_data)
+      #       zip.write(row)
+      #       next unless zip.pos > CHUNK_SIZE
 
-            upload_thread.join
-            upload_thread = finish_chunk(tmpfile: tmpfile, zip: zip, chunk: chunk)
-            chunk += 1
-            tmpfile, zip = start_chunk
-          end
-        end
-        upload_thread.join
-        finish_chunk(tmpfile: tmpfile, zip: zip, chunk: chunk).join
-        source_connection.reset
-      ensure
-        close_resources(zip: zip)
-      end
+      #       upload_thread.join
+      #       upload_thread = finish_chunk(tmpfile: tmpfile, zip: zip, chunk: chunk)
+      #       chunk += 1
+      #       tmpfile, zip = start_chunk
+      #     end
+      #   end
+      #   upload_thread.join
+      #   finish_chunk(tmpfile: tmpfile, zip: zip, chunk: chunk).join
+      #   source_connection.reset
+      # ensure
+      #   close_resources(zip: zip)
+      # end
     end
 
     def upload_table(tmpfile:, zip:, chunk:)
-      Thread.new do
-        puts "#{Time.now.utc} - Uploading #{table.target_table_name}.#{chunk}"
-        bucket.objects["export/#{table.target_table_name}.psv.gz.#{chunk}"].write(tmpfile)
-        puts "#{Time.now.utc} - Uploading #{table.target_table_name}.#{chunk} complete."
-        close_resources(zip: zip)
-      end
+      # Thread.new do
+      #   puts "#{Time.now.utc} - Uploading #{table.target_table_name}.#{chunk}"
+      #   bucket.objects["export/#{table.target_table_name}.psv.gz.#{chunk}"].write(tmpfile)
+      #   puts "#{Time.now.utc} - Uploading #{table.target_table_name}.#{chunk} complete."
+      #   close_resources(zip: zip)
+      # end
     end
 
     def import_table

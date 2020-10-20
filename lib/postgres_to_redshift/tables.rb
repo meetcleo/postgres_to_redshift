@@ -21,11 +21,19 @@ module PostgresToRedshift
         @redshift_include_tables ||= ENV['REDSHIFT_INCLUDE_TABLES'].split(',')
       end
 
+      def redshift_exclude_tables
+        @redshift_exclude_tables ||= ENV['REDSHIFT_EXCLUDE_TABLES'].split(',')
+      end
+
       def tables_sql
         sql = "SELECT * FROM information_schema.tables WHERE table_schema = 'public' AND table_type in ('BASE TABLE', 'VIEW') AND table_name !~* '^pg_.*'"
         if ENV['REDSHIFT_INCLUDE_TABLES']
           table_names = "'" + redshift_include_tables.join("', '") + "'"
           sql += " AND table_name IN (#{table_names})"
+        end
+        if ENV['REDSHIFT_EXCLUDE_TABLES']
+          table_names = "'" + redshift_exclude_tables.join("', '") + "'"
+          sql += " AND table_name NOT IN (#{table_names})"
         end
         sql += ' ORDER BY table_name'
         sql
