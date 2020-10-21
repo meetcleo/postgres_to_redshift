@@ -1,3 +1,4 @@
+require 'active_support/all'
 require 'aws-sdk-v1'
 require 'pg'
 require 'pidfile'
