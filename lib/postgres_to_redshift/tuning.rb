@@ -1,6 +1,6 @@
 module PostgresToRedshift
   class Tuning
-    DEFAULT_SORT_KEYS = %w[created_at] # We often filter and sort by these columns
+    DEFAULT_SORT_KEYS = %w[] # We often filter and sort by these columns
 
     def initialize(table:, source_connection:)
       @table = table
@@ -12,11 +12,7 @@ module PostgresToRedshift
     # If there is a reference to the optimised table, sort on this column in order to optimise any join with optimised table
     # Else, sort by PK to optimise any joins or filter on this table
     def sort_keys
-      sort_key_column_names = if can_optimise_for_different_table?
-                           [foreign_key_column_name_to_optimised_table]
-                         else
-                           [primary_key_column_name].compact
-                         end
+      sort_key_column_names = [primary_key_column_name].compact
 
       sort_key_column_names + DEFAULT_SORT_KEYS.select { |column_name| table_includes_column?(column_name) }
     end
