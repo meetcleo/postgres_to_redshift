@@ -1,5 +1,13 @@
 # PostgresToRedshift
 
+## HACK HACK HACK!
+* this branch is just to recreate the schema of in the target db.
+* don't need to add as a dep, just pull this repo and run:
+```
+POSTGRES_TO_REDSHIFT_OPTIMISED_FOR_TABLE=users POSTGRES_TO_REDSHIFT_SOURCE_URI='<snip>' POSTGRES_TO_REDSHIFT_TARGET_SCHEMA='public' POSTGRES_TO_REDSHIFT_TARGET_URI='<snip>' REDSHIFT_EXCLUDE_TABLES=ar_internal_metadata,schema_migrations,awsdms_apply_exceptions,v_blocking_pids,v_locks,v_long_running_queries,v_tab_bloat,v_unused_idx POSTGRES_TO_REDSHIFT_INCREMENTAL=false ./bin/postgres_to_redshift
+```
+
+
 This gem copies data from postgres to redshift. It's especially useful to copy data from postgres to redshift in heroku.
 
 [![Build Status](https://travis-ci.org/kitchensurfing/postgres_to_redshift.svg?branch=master)](https://travis-ci.org/kitchensurfing/postgres_to_redshift)
