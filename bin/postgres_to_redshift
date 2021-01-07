@@ -1,5 +1,8 @@
 #!/usr/bin/env ruby
 
-require 'postgres_to_redshift'
+require 'rubygems'
+require 'bundler/setup'
+require_relative '../lib/postgres_to_redshift'
+
 
 PostgresToRedshift.update_tables
