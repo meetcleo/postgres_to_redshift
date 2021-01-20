@@ -4,7 +4,7 @@ module PostgresToRedshift
       @table = table
       @target_connection = target_connection
       @schema = schema
-      @tuning = Tuning.new(table: table, source_connection: source_connection)
+      @tuning = Tuning.new(table: table, source_connection: source_connection, schema: schema)
     end
 
     def run

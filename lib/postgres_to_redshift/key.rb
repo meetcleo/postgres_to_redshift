@@ -5,8 +5,9 @@ module PostgresToRedshift
     PRIMARY_KEY_DECOMPOSER = /PRIMARY KEY \((?<source_column_name>\w+)\)/i.freeze
     FOREIGN_KEY_DECOMPOSER = /FOREIGN KEY \((?<source_column_name>\w+)\) REFERENCES (?<target_table_name>\w+)\((?<target_column_name>\w+)\)/i.freeze
 
-    def initialize(attributes:)
+    def initialize(attributes:, schema:)
       @attributes = attributes
+      @schema = schema
     end
 
     def to_sql
@@ -50,7 +51,7 @@ module PostgresToRedshift
 
     private
 
-    attr_reader :attributes
+    attr_reader :attributes, :schema
 
     def decomposed_key
       regex = case key_type
@@ -70,11 +71,12 @@ module PostgresToRedshift
     end
 
     def foreign_key_sql
-      "ALTER TABLE #{table_name} ADD CONSTRAINT #{key_name} #{key_definition}"
+      key_definition_with_schema_name = key_definition.gsub(/REFERENCES /, "REFERENCES #{schema}.")
+      "ALTER TABLE #{schema}.#{table_name} ADD CONSTRAINT #{key_name} #{key_definition_with_schema_name}"
     end
 
     def primary_key_sql
-      "ALTER TABLE #{table_name} ADD #{key_definition}"
+      "ALTER TABLE #{schema}.#{table_name} ADD #{key_definition}"
     end
 
     def key_type

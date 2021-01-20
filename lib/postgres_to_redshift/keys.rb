@@ -1,8 +1,9 @@
 module PostgresToRedshift
   class Keys
-    def initialize(source_connection:, tables: nil)
+    def initialize(source_connection:, schema:, tables: nil)
       @source_connection = source_connection
       @tables = tables
+      @schema = schema
     end
 
     def all
@@ -11,11 +12,11 @@ module PostgresToRedshift
 
     private
 
-    attr_reader :source_connection, :tables
+    attr_reader :source_connection, :tables, :schema
 
     def all_keys
       source_connection.exec(find_all_keys_sql).map do |key_attributes|
-        Key.new(attributes: key_attributes)
+        Key.new(attributes: key_attributes, schema: schema)
       end.compact
     end
 

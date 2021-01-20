@@ -2,11 +2,11 @@ module PostgresToRedshift
   class Tuning
     DEFAULT_SORT_KEYS = %w[] # We often filter and sort by these columns
 
-    def initialize(table:, source_connection:)
+    def initialize(table:, source_connection:, schema:)
       @table = table
       @table_name = table.target_table_name.downcase
       @optimised_for_table_name = ENV['POSTGRES_TO_REDSHIFT_OPTIMISED_FOR_TABLE']&.downcase&.strip || table_name
-      @keys = Keys.new(source_connection: source_connection, tables: [table_name, optimised_for_table_name].uniq).all
+      @keys = Keys.new(source_connection: source_connection, tables: [table_name, optimised_for_table_name].uniq, schema: schema).all
     end
 
     # If there is a reference to the optimised table, sort on this column in order to optimise any join with optimised table

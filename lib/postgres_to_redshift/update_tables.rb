@@ -73,7 +73,7 @@ module PostgresToRedshift
 
     def keys
       # do not cache - we want fresh key listing for retries
-      Keys.new(source_connection: source_connection, tables: tables.map(&:name)).all
+      Keys.new(source_connection: source_connection, tables: tables.map(&:name), schema: schema).all
     end
 
     def disconnect
